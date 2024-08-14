@@ -1,15 +1,13 @@
-package prometheus
+package handler
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/pavr1/people/config"
+	"github.com/pavr1/prometheus/config"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -85,18 +83,4 @@ func (h *PrometheusHandler) PrometheusMiddleware(next http.Handler) http.Handler
 
 		log.WithFields(log.Fields{"status": statusCode, "path": path, "timer": timer.ObserveDuration()}).Info("PrometheusMiddleware Executed")
 	})
-}
-
-func (h *PrometheusHandler) Listen() {
-	router := mux.NewRouter()
-	router.Use(h.PrometheusMiddleware)
-
-	// Prometheus endpoint
-	router.Path("/prometheus").Handler(promhttp.Handler())
-
-	// Serving static files
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
-
-	h.log.WithField("Port", h.config.Prometheus.Port).Info("Serving prometheus requests")
-	log.Error(http.ListenAndServe(fmt.Sprintf(":%d", h.config.Prometheus.Port), router))
 }

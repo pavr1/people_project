@@ -12,9 +12,6 @@ type Config struct {
 	Server struct {
 		Port int `mapstructure:"port"`
 	} `mapstructure:"server"`
-	Prometheus struct {
-		Port int `mapstructure:"port"`
-	} `mapstructure:"prometheus"`
 	Auth struct {
 		Path string `mapstructure:"path"`
 		Host string `mapstructure:"host"`
@@ -57,10 +54,6 @@ func NewConfig() (*Config, error) {
 
 	if config.Server.Port == 0 {
 		return nil, errors.New("server.port is required")
-	}
-
-	if config.Prometheus.Port == 0 {
-		return nil, errors.New("prometheus.port is required")
 	}
 
 	if config.Auth.Path == "" {

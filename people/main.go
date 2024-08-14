@@ -9,7 +9,6 @@ import (
 	"github.com/pavr1/people/config"
 	"github.com/pavr1/people/handlers/auth"
 	_http "github.com/pavr1/people/handlers/http"
-	"github.com/pavr1/people/handlers/prometheus"
 	"github.com/pavr1/people/handlers/repo"
 	log "github.com/sirupsen/logrus"
 )
@@ -34,8 +33,6 @@ func main() {
 
 	authHandler := auth.NewAuth(log, config)
 	httpHandler := _http.NewHttpHandler(authHandler, repoHandler)
-	prometheus := prometheus.NewPrometheusHandler(log, config)
-	go prometheus.Listen()
 
 	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
