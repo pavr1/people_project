@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/pavr1/prometheus/config"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	log "github.com/sirupsen/logrus"
@@ -13,7 +12,6 @@ import (
 
 type PrometheusHandler struct {
 	log            *log.Logger
-	config         *config.Config
 	totalRequests  *prometheus.CounterVec
 	responseStatus *prometheus.CounterVec
 	httpDuration   *prometheus.HistogramVec
@@ -25,7 +23,7 @@ func (h *PrometheusHandler) init() {
 	prometheus.MustRegister(h.httpDuration)
 }
 
-func NewPrometheusHandler(log *log.Logger, config *config.Config) *PrometheusHandler {
+func NewPrometheusHandler(log *log.Logger) *PrometheusHandler {
 	totalRequests := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "http_requests_total",
@@ -49,7 +47,6 @@ func NewPrometheusHandler(log *log.Logger, config *config.Config) *PrometheusHan
 
 	return &PrometheusHandler{
 		log:            log,
-		config:         config,
 		totalRequests:  totalRequests,
 		responseStatus: responseStatus,
 		httpDuration:   httpDuration,

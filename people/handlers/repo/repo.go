@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pavr1/people/config"
-	"github.com/pavr1/people/models"
+	"github.com/pavr1/people_project/people/config"
+	"github.com/pavr1/people_project/people/models"
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

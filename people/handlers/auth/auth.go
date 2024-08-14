@@ -4,7 +4,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/pavr1/people/config"
+	"github.com/pavr1/people_project/people/config"
 	log "github.com/sirupsen/logrus"
 )
 

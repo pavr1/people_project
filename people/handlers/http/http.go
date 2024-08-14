@@ -8,9 +8,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/pavr1/people/handlers/auth"
-	repohandler "github.com/pavr1/people/handlers/repo"
-	"github.com/pavr1/people/models"
+	"github.com/pavr1/people_project/people/handlers/auth"
+	repohandler "github.com/pavr1/people_project/people/handlers/repo"
+	"github.com/pavr1/people_project/people/models"
 )
 
 type HttpHandler struct {

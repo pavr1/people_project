@@ -1,6 +1,6 @@
-module github.com/pavr1/people
+module github.com/pavr1/people_project/people
 
-go 1.22.5
+go 1.22
 
 require (
 	github.com/gorilla/mux v1.8.1

@@ -6,10 +6,11 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
-	"github.com/pavr1/people/config"
-	"github.com/pavr1/people/handlers/auth"
-	_http "github.com/pavr1/people/handlers/http"
-	"github.com/pavr1/people/handlers/repo"
+	"github.com/pavr1/people_project/people/config"
+	"github.com/pavr1/people_project/people/handlers/auth"
+	_http "github.com/pavr1/people_project/people/handlers/http"
+	"github.com/pavr1/people_project/people/handlers/repo"
+	prometheus "github.com/pavr1/people_project/prometheus/handler"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -33,6 +34,9 @@ func main() {
 
 	authHandler := auth.NewAuth(log, config)
 	httpHandler := _http.NewHttpHandler(authHandler, repoHandler)
+
+	promHandler := prometheus.NewPrometheusHandler(log)
+	router.Use(promHandler.PrometheusMiddleware)
 
 	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)

@@ -7,8 +7,7 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
-	"github.com/pavr1/prometheus/config"
-	"github.com/pavr1/prometheus/handler"
+	"github.com/pavr1/people_project/prometheus/config"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 )
@@ -24,8 +23,8 @@ func main() {
 		return
 	}
 
-	prometheus := handler.NewPrometheusHandler(log, config)
-	router.Use(prometheus.PrometheusMiddleware)
+	// prometheus := handler.NewPrometheusHandler(log, config)
+	// router.Use(prometheus.PrometheusMiddleware)
 
 	// Prometheus endpoint
 	router.Path("/prometheus").Handler(promhttp.Handler())

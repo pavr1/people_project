@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/pavr1/auth/config"
-	"github.com/pavr1/auth/handler"
+	"github.com/pavr1/people_project/people_project/auth/config"
+	"github.com/pavr1/people_project/people_project/auth/handler"
 
 	log "github.com/sirupsen/logrus"
 )

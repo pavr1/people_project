@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/pavr1/people/config"
+	"github.com/pavr1/people_project/people/config"
 )
 
 type Person struct {

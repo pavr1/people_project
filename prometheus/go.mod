@@ -1,4 +1,4 @@
-module github.com/pavr1/prometheus
+module github.com/pavr1/people_project/prometheus
 
 go 1.22
 
