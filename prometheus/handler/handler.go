@@ -24,7 +24,7 @@ func (h *PrometheusHandler) init() {
 }
 
 func NewPrometheusHandler(log *log.Logger) *PrometheusHandler {
-	totalRequests := prometheus.NewCounterVec(
+	totalRequests := promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "http_requests_total",
 			Help: "Number of get requests.",
@@ -32,7 +32,7 @@ func NewPrometheusHandler(log *log.Logger) *PrometheusHandler {
 		[]string{"path"},
 	)
 
-	responseStatus := prometheus.NewCounterVec(
+	responseStatus := promauto.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "response_status",
 			Help: "Status of HTTP response",
@@ -43,7 +43,7 @@ func NewPrometheusHandler(log *log.Logger) *PrometheusHandler {
 	httpDuration := promauto.NewHistogramVec(prometheus.HistogramOpts{
 		Name: "http_response_time_seconds",
 		Help: "Duration of HTTP requests.",
-	}, []string{"path1"})
+	}, []string{"path"})
 
 	return &PrometheusHandler{
 		log:            log,
