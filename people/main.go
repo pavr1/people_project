@@ -10,7 +10,6 @@ import (
 	"github.com/pavr1/people_project/people/handlers/auth"
 	_http "github.com/pavr1/people_project/people/handlers/http"
 	"github.com/pavr1/people_project/people/handlers/repo"
-	prometheus "github.com/pavr1/people_project/prometheus/handler"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -33,20 +32,21 @@ func main() {
 	}
 
 	authHandler := auth.NewAuth(log, config)
-	httpHandler := _http.NewHttpHandler(authHandler, repoHandler)
+	httpHandler := _http.NewHttpHandler(authHandler, repoHandler, log)
 
-	promHandler := prometheus.NewPrometheusHandler(log)
-	router.Use(promHandler.PrometheusMiddleware)
+	// promHandler := prometheus.NewPrometheusHandler(log)
+	// router.Use(promHandler.PrometheusMiddleware)
+	// promHandler.Listen(log, 9000)
 
 	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	router.HandleFunc("/person/list", httpHandler.GetPersonList)
-	router.HandleFunc("/person/create", httpHandler.CreatePerson)
-	router.HandleFunc("/person/update", httpHandler.UpdatePerson)
-	router.HandleFunc("/person/delete/{id}", httpHandler.DeletePerson)
-	router.HandleFunc("/person/{id}", httpHandler.GetPerson)
+	router.HandleFunc("/person/list", httpHandler.Middleware(httpHandler.GetPersonList, httpHandler.PrometheusLog))
+	router.HandleFunc("/person/create", httpHandler.Middleware(httpHandler.CreatePerson, httpHandler.PrometheusLog))
+	router.HandleFunc("/person/update", httpHandler.Middleware(httpHandler.UpdatePerson, httpHandler.PrometheusLog))
+	router.HandleFunc("/person/delete/{id}", httpHandler.Middleware(httpHandler.DeletePerson, httpHandler.PrometheusLog))
+	router.HandleFunc("/person/{id}", httpHandler.Middleware(httpHandler.GetPerson, httpHandler.PrometheusLog))
 
 	log.WithField("port", config.Server.Port).Info("Listening to Server...")
 	// Start the HTTP server

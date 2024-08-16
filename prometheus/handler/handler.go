@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
-	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	log "github.com/sirupsen/logrus"
@@ -53,31 +53,30 @@ func NewPrometheusHandler(log *log.Logger) *PrometheusHandler {
 	}
 }
 
-type responseWriter struct {
-	http.ResponseWriter
-	statusCode int
-}
+func (h *PrometheusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	path := r.Header.Get("X-Request-Path")
+	status := r.Header.Get("X-Response-Status")
+	time := r.Header.Get("X-Response-Time")
 
-func newResponseWriter(w http.ResponseWriter) *responseWriter {
-	return &responseWriter{w, http.StatusOK}
-}
-
-func (h *PrometheusHandler) PrometheusMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		route := mux.CurrentRoute(r)
-		path, _ := route.GetPathTemplate()
-
-		timer := prometheus.NewTimer(h.httpDuration.WithLabelValues(path))
-		rw := newResponseWriter(w)
-		next.ServeHTTP(rw, r)
-
-		statusCode := rw.statusCode
-
-		h.responseStatus.WithLabelValues(strconv.Itoa(statusCode)).Inc()
+	if path != "" {
+		log.WithField("path", path).Info("PrometheusMiddleware Executing")
 		h.totalRequests.WithLabelValues(path).Inc()
+	}
 
-		timer.ObserveDuration()
+	if status != "" {
+		log.WithField("status", status).Info("PrometheusMiddleware Executing")
+		h.responseStatus.WithLabelValues(status).Inc()
+	}
 
-		log.WithFields(log.Fields{"status": statusCode, "path": path, "timer": timer.ObserveDuration()}).Info("PrometheusMiddleware Executed")
-	})
+	if time != "" {
+		time = strings.ReplaceAll(time, "ms", "")
+		timeF, err := strconv.ParseFloat(time, 64)
+		if err != nil {
+			log.WithError(err).Error("Failed to parse X-Response-Time to float64")
+
+		} else {
+			log.WithField("time", time).Info("PrometheusMiddleware Executing")
+			h.httpDuration.WithLabelValues(path).Observe(timeF)
+		}
+	}
 }

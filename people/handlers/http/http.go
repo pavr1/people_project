@@ -5,7 +5,9 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
+	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/pavr1/people_project/people/handlers/auth"
@@ -14,19 +16,54 @@ import (
 )
 
 type HttpHandler struct {
+	log  *log.Logger
 	repo *repohandler.RepoHandler
 	auth *auth.Auth
 }
 
-func NewHttpHandler(auth *auth.Auth, repo *repohandler.RepoHandler) *HttpHandler {
+func NewHttpHandler(auth *auth.Auth, repo *repohandler.RepoHandler, log *log.Logger) *HttpHandler {
 	return &HttpHandler{
 		auth: auth,
 		repo: repo,
+		log:  log,
 	}
 }
 
+type responseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func newResponseWriter(w http.ResponseWriter) *responseWriter {
+	return &responseWriter{w, 200}
+}
+
+func (h *HttpHandler) Middleware(peopleHandler http.HandlerFunc, prometheusHandler http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		timeStart := time.Now()
+		peopleHandler.ServeHTTP(w, r)
+		timeEnd := time.Now()
+
+		route := mux.CurrentRoute(r)
+		path, err := route.GetPathTemplate()
+		if err != nil {
+			h.log.WithError(err).Error("Failed to get path template")
+		}
+
+		rw := newResponseWriter(w)
+
+		r.Header.Add("X-Request-Path", path)
+		r.Header.Add("X-Response-Status", string(rw.statusCode))
+		r.Header.Add("X-Response-Time", timeEnd.Sub(timeStart).String())
+
+		h.log.WithFields(log.Fields{"path": r.Header.Get("X-Request-Path"), "status": r.Header.Get("X-Response-Status"), "time": r.Header.Get("X-Response-Time")}).Info("Middleware Completed")
+
+		prometheusHandler.ServeHTTP(w, r)
+	})
+}
+
 func (h *HttpHandler) GetPersonList(w http.ResponseWriter, r *http.Request) {
-	log.Info("GetPersonList")
+	h.log.Info("GetPersonList")
 
 	isValid := h.validate(r, w, http.MethodGet)
 	if !isValid {
@@ -43,7 +80,7 @@ func (h *HttpHandler) GetPersonList(w http.ResponseWriter, r *http.Request) {
 
 	bytes, err := json.Marshal(people)
 	if err != nil {
-		log.WithError(err).Error("Failed to marshal person list")
+		h.log.WithError(err).Error("Failed to marshal person list")
 
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -54,7 +91,7 @@ func (h *HttpHandler) GetPersonList(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HttpHandler) GetPerson(w http.ResponseWriter, r *http.Request) {
-	log.Info("GetPerson")
+	h.log.Info("GetPerson")
 
 	isValid := h.validate(r, w, http.MethodGet)
 	if !isValid {
@@ -88,7 +125,7 @@ func (h *HttpHandler) GetPerson(w http.ResponseWriter, r *http.Request) {
 
 	bytes, err := json.Marshal(person)
 	if err != nil {
-		log.WithError(err).Error("Failed to marshal person")
+		h.log.WithError(err).Error("Failed to marshal person")
 
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -99,7 +136,7 @@ func (h *HttpHandler) GetPerson(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HttpHandler) CreatePerson(w http.ResponseWriter, r *http.Request) {
-	log.Info("CreatePerson")
+	h.log.Info("CreatePerson")
 
 	isValid := h.validate(r, w, http.MethodPost)
 	if !isValid {
@@ -109,7 +146,7 @@ func (h *HttpHandler) CreatePerson(w http.ResponseWriter, r *http.Request) {
 	// Read the request body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.WithError(err).Error("Failed to read request body")
+		h.log.WithError(err).Error("Failed to read request body")
 
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -118,7 +155,7 @@ func (h *HttpHandler) CreatePerson(w http.ResponseWriter, r *http.Request) {
 	person := models.Person{}
 	err = json.Unmarshal(body, &person)
 	if err != nil {
-		log.WithError(err).Error("Failed to unmarshal request body")
+		h.log.WithError(err).Error("Failed to unmarshal request body")
 
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -144,7 +181,7 @@ func (h *HttpHandler) CreatePerson(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HttpHandler) UpdatePerson(w http.ResponseWriter, r *http.Request) {
-	log.Info("UpdatePerson")
+	h.log.Info("UpdatePerson")
 
 	isValid := h.validate(r, w, http.MethodPut)
 	if !isValid {
@@ -154,7 +191,7 @@ func (h *HttpHandler) UpdatePerson(w http.ResponseWriter, r *http.Request) {
 	// Read the request body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.WithError(err).Error("Failed to read request body")
+		h.log.WithError(err).Error("Failed to read request body")
 
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -164,7 +201,7 @@ func (h *HttpHandler) UpdatePerson(w http.ResponseWriter, r *http.Request) {
 
 	err = json.Unmarshal(body, &person)
 	if err != nil {
-		log.WithError(err).Error("Failed to unmarshal request body")
+		h.log.WithError(err).Error("Failed to unmarshal request body")
 
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -209,7 +246,7 @@ func (h *HttpHandler) UpdatePerson(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HttpHandler) DeletePerson(w http.ResponseWriter, r *http.Request) {
-	log.Info("DeletePerson")
+	h.log.Info("DeletePerson")
 
 	isValid := h.validate(r, w, http.MethodDelete)
 	if !isValid {
@@ -255,7 +292,7 @@ func (h *HttpHandler) isValidToken(r *http.Request, w http.ResponseWriter) bool 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
-		log.Warn("Failed to validate token")
+		h.log.Warn("Failed to validate token")
 
 		return false
 	}
@@ -263,26 +300,26 @@ func (h *HttpHandler) isValidToken(r *http.Request, w http.ResponseWriter) bool 
 	if resCode != http.StatusOK {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte(body))
-		log.Warn("Invalid token")
+		h.log.Warn("Invalid token")
 
 		return false
 	}
 
-	log.Info("Valid token")
+	h.log.Info("Valid token")
 	return true
 }
 
-func (*HttpHandler) isValidRequest(r *http.Request, w http.ResponseWriter, method string) bool {
+func (h *HttpHandler) isValidRequest(r *http.Request, w http.ResponseWriter, method string) bool {
 	if r.Method != method {
 		http.Error(w, "Invalid request method", http.StatusBadRequest)
-		log.Warn("Invalid request method")
+		h.log.Warn("Invalid request method")
 		return false
 	}
 
 	if r.Header.Get("Authorization") == "" {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("Authorization header is required"))
-		log.Warn("Authorization header is required")
+		h.log.Warn("Authorization header is required")
 
 		return false
 	}
@@ -290,11 +327,35 @@ func (*HttpHandler) isValidRequest(r *http.Request, w http.ResponseWriter, metho
 	if !strings.HasPrefix(r.Header.Get("Authorization"), "Bearer ") {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("Authorization header is invalid"))
-		log.Warn("Authorization header is invalid")
+		h.log.Warn("Authorization header is invalid")
 
 		return false
 	}
 
-	log.Info("Valid request")
+	h.log.Info("Valid request")
 	return true
+}
+
+func (h *HttpHandler) PrometheusLog(w http.ResponseWriter, r *http.Request) {
+	h.log.WithFields(log.Fields{"path": r.Header.Get("X-Request-Path"), "status": r.Header.Get("X-Response-Status"), "time": r.Header.Get("X-Response-Time")}).Info("Middleware Prometheus")
+
+	req, err := http.NewRequest("GET", "http://prometheus:9000/prometheus/log", nil)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		h.log.WithError(err).Error("Failed to create prometheus request")
+
+		return
+	}
+
+	req.Header = r.Header
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		h.log.WithError(err).Error("Failed to send prometheus request")
+
+		return
+	}
+
+	defer resp.Body.Close()
 }
