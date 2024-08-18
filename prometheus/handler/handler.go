@@ -69,7 +69,9 @@ func (h *PrometheusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if time != "" {
+		time = strings.ReplaceAll(time, "s", "")
 		time = strings.ReplaceAll(time, "ms", "")
+		time = strings.ReplaceAll(time, "µs", "")
 		timeF, err := strconv.ParseFloat(time, 64)
 		if err != nil {
 			log.WithError(err).Error("Failed to parse X-Response-Time to float64")
