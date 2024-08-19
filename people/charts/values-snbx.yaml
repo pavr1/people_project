@@ -49,13 +49,13 @@ service:
 ingress:
   enabled: true
   className: "nginx"
-  annotations: {spec.ingressClassName: "nginx", nginx.ingress.kubernetes.io/rewrite-target: /}
+  annotations: {spec.ingressClassName: "nginx", nginx.ingress.kubernetes.io/rewrite-target: /person/$1}
   # kubernetes.io/ingress.class: nginx
   # kubernetes.io/tls-acme: "true"
   hosts:
   - host: kubernetes.docker.internal
     paths:
-    - path: "/"
+    - path: "/person/(.*)"
       pathType: Prefix
       backend:
         service:

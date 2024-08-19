@@ -47,21 +47,28 @@ service:
   port: 9000
 
 ingress:
-  enabled: false
+  enabled: true
   className: "nginx"
-  annotations: {spec.ingressClassName: "nginx", nginx.ingress.kubernetes.io/rewrite-target: /}
+  annotations: {spec.ingressClassName: "nginx"}
   # kubernetes.io/ingress.class: nginx
   # kubernetes.io/tls-acme: "true"
   hosts:
-  - host: kubernetes.docker.internal
+  - host: kubernetes.prometheus.internal
     paths:
-    - path: "/"
-      pathType: Prefix
+    - path: "/prometheus/log"
+      pathType: Exact
       backend:
         service:
-          name: name
+          name: prometheus
           port:
-            number: 0000
+            number: 9000
+    - path: "/prometheus"
+      pathType: Exact
+      backend:
+        service:
+          name: prometheus
+          port:
+            number: 9000
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
