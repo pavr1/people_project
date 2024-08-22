@@ -53,7 +53,7 @@ ingress:
   # kubernetes.io/ingress.class: nginx
   # kubernetes.io/tls-acme: "true"
   hosts:
-  - host: kubernetes.prometheus.internal
+  - host: kubernetes.prometheus.internal.snbx.com
     paths:
     - path: "/prometheus/log"
       pathType: Exact

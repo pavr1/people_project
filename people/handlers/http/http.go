@@ -339,6 +339,7 @@ func (h *HttpHandler) isValidRequest(r *http.Request, w http.ResponseWriter, met
 func (h *HttpHandler) PrometheusLog(w http.ResponseWriter, r *http.Request) {
 	h.log.WithFields(log.Fields{"path": r.Header.Get("X-Request-Path"), "status": r.Header.Get("X-Response-Status"), "time": r.Header.Get("X-Response-Time")}).Info("Middleware Prometheus")
 
+	//pvillalobos - hardcoded path needs to be added to env.
 	req, err := http.NewRequest("GET", "http://prometheus:9000/prometheus/log", nil)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
