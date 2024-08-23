@@ -46,8 +46,9 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "prometheus.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "prometheus.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+meta.helm.sh/release-name: prometheus
+app.kubernetes.io/managed-by: Helm
+eta.helm.sh/release-namespace: snbx
 {{- end }}
 
 {{/*

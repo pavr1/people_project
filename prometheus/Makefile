@@ -6,4 +6,4 @@ install-helm-snbx:
 	kubectl config set-context --current --namespace=snbx
 	helm install prometheus prometheus --values ./prometheus/values-snbx.yaml --namespace snbx
 	chmod +x ./scripts/vars.sh
-	sh ./scripts/vars.sh
+	sh ./scripts/vars.sh snbx

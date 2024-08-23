@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Set the environment name
-ENV_NAME="snbx" 
-
 # Set the environment variables
 VARIABLES=(
   "SERVER_PORT=8080"
@@ -16,6 +13,10 @@ VARIABLES=(
   "MONGODB_ROLE=userAdminAnyDatabase"
 )
 
+echo "Setting environment variables in namespace $1"
+
 for variable in "${VARIABLES[@]}"; do
-  kubectl -n ${ENV_NAME} set env deployment/people-charts ${variable}
+  kubectl -n $1 set env deployment/people-charts ${variable}
 done
+
+echo "Done!"
