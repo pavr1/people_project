@@ -5,8 +5,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/spf13/viper"
-
 	log "github.com/sirupsen/logrus"
 )
 
@@ -17,20 +15,6 @@ type Config struct {
 }
 
 func NewConfig(log *log.Logger) (*Config, error) {
-	// Set the configuration file name and type
-	viper.SetConfigName("config")
-	viper.SetConfigType("json")
-
-	// Set the configuration file path
-	viper.AddConfigPath(".")
-
-	// Read the configuration file
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.WithField("error", err).Error("Failed to read configuration file")
-		return nil, err
-	}
-
 	// Unmarshal the configuration into a struct
 	port := os.Getenv("AUTH_PORT")
 	if port == "" {

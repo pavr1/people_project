@@ -5,8 +5,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/spf13/viper"
-
 	log "github.com/sirupsen/logrus"
 )
 
@@ -30,10 +28,6 @@ type Config struct {
 }
 
 func NewConfig() (*Config, error) {
-	// Set the configuration file name and type
-	viper.SetConfigName("config")
-	viper.SetConfigType("json")
-
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
 		log.Error("SERVER_PORT is not set")
