@@ -1,6 +1,10 @@
 package config
 
 import (
+	"errors"
+	"os"
+	"strconv"
+
 	"github.com/spf13/viper"
 
 	log "github.com/sirupsen/logrus"
@@ -28,12 +32,20 @@ func NewConfig(log *log.Logger) (*Config, error) {
 	}
 
 	// Unmarshal the configuration into a struct
-	var config Config
-	err = viper.Unmarshal(&config)
+	port := os.Getenv("AUTH_PORT")
+	if port == "" {
+		log.Error("AUTH_PORT is not set")
+		return nil, errors.New("AUTH_PORT is not set")
+	}
+
+	portInt, err := strconv.Atoi(port)
 	if err != nil {
-		log.WithField("error", err).Error("Failed to unmarshal configuration file")
+		log.WithField("error", err).Error("Failed to convert port to int")
 		return nil, err
 	}
+
+	var config = Config{}
+	config.Server.Port = portInt
 
 	log.WithField("config", config).Info("Loaded configuration file")
 

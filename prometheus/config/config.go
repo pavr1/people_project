@@ -2,8 +2,8 @@ package config
 
 import (
 	"errors"
-
-	"github.com/spf13/viper"
+	"os"
+	"strconv"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -15,33 +15,20 @@ type Config struct {
 }
 
 func NewConfig() (*Config, error) {
-	// Set the configuration file name and type
-	viper.SetConfigName("config")
-	viper.SetConfigType("json")
+	port := os.Getenv("PROMETHEUS_PORT")
+	if port == "" {
+		log.Error("PROMETHEUS_PORT is not set")
+		return nil, errors.New("SERVER_PORT is not set")
+	}
 
-	// Set the configuration file path
-	viper.AddConfigPath(".")
-
-	// Read the configuration file
-	err := viper.ReadInConfig()
+	portInt, err := strconv.Atoi(port)
 	if err != nil {
-		log.WithField("error", err).Error("Failed to read configuration file")
+		log.WithField("error", err).Error("Failed to convert port to int")
 		return nil, err
 	}
 
-	// Unmarshal the configuration into a struct
-	var config Config
-	err = viper.Unmarshal(&config)
-	if err != nil {
-		log.WithField("error", err).Error("Failed to unmarshal configuration file")
-		return nil, err
-	}
-
-	log.WithField("config", config).Info("Loaded configuration file")
-
-	if config.Prometheus.Port == 0 {
-		return nil, errors.New("prometheus.port is required")
-	}
+	var config = Config{}
+	config.Prometheus.Port = portInt
 
 	log.WithField("config", config).Info("Loaded configuration file")
 

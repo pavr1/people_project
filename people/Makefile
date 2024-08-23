@@ -11,6 +11,8 @@ install-helm-snbx:
 	make build
 	kubectl config set-context --current --namespace=snbx
 	helm install people charts --values ./charts/values-snbx.yaml --namespace snbx
+	chmod +x ./scripts/vars.sh
+	sh ./scripts/vars.sh
 
 install-helm-eng:
 	helm install helloworld charts/hello_world --values ./charts/hello_world/values-eng.yaml --namespace eng

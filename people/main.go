@@ -34,10 +34,6 @@ func main() {
 	authHandler := auth.NewAuth(log, config)
 	httpHandler := _http.NewHttpHandler(authHandler, repoHandler, log)
 
-	// promHandler := prometheus.NewPrometheusHandler(log)
-	// router.Use(promHandler.PrometheusMiddleware)
-	// promHandler.Listen(log, 9000)
-
 	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
