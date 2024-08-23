@@ -4,7 +4,7 @@
 VARIABLES=(
   "SERVER_PORT=8080"
   "AUTH_PATH=http://auth:8081/auth/token"
-  "AUTH_HOST=kubernetes.auth.internal.snbx.com"
+  "AUTH_HOST=kubernetes.auth.internal.eng.com"
   "MONGODB_URI=mongodb://admin:password@mongodb:27017/"
   "MONGODB_DATABASE=person"
   "MONGODB_COLLECTION=person"

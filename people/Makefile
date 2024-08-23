@@ -29,7 +29,8 @@ uninstall-helm-snbx:
 install-helm-eng:
 	make build
 	kubectl config set-context --current --namespace=eng
-	helm install people charts --values ./charts/values-snbx.yaml --namespace eng
+	helm install people charts --values ./charts/values-eng.yaml --namespace eng
+	kubectl apply -f ./charts/3rd-parties/mongo/mongo-eng.yaml
 	chmod +x ./scripts/vars.sh
 	sh ./scripts/vars.sh eng
 
