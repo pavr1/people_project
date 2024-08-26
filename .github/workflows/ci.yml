@@ -58,8 +58,8 @@ jobs:
         echo "${{ secrets.K8S_CLIENT_KEY }}" | base64 -d > client.key
 
         kubectl config set-cluster docker-desktop --server=https://127.0.0.1:6443 --certificate-authority=ca.crt
-        kubectl config set-credentials admin --client-certificate=client.crt --client-key=client.key
-        kubectl config set-context docker-desktop --cluster=docker-desktop --user=admin
+        kubectl config set-credentials docker-desktop --client-certificate=client.crt --client-key=client.key
+        kubectl config set-context docker-desktop --cluster=docker-desktop --user=docker-desktop
         kubectl config use-context docker-desktop
 
     - name: Deployinh ${{ matrix.project }} project
