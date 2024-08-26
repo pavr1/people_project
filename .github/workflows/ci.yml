@@ -53,9 +53,9 @@ jobs:
 
     - name: Configure Kubernetes context
       run: |
-        echo "${{ secrets.K8S_CA_CERT }}" > ca.crt
-        echo "${{ secrets.K8S_CLIENT_CERT }}" > client.crt
-        echo "${{ secrets.K8S_CLIENT_KEY }}" > client.key
+        echo "${{ secrets.K8S_CA_CERT }}" | base64 -d > ca.crt
+        echo "${{ secrets.K8S_CLIENT_CERT }}" | base64 -d > client.crt
+        echo "${{ secrets.K8S_CLIENT_KEY }}" | base64 -d > client.key
 
         kubectl config set-cluster docker-desktop --server=https://localhost:6443 --certificate-authority=ca.crt
         kubectl config set-credentials admin --client-certificate=client.crt --client-key=client.key
