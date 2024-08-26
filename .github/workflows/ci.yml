@@ -25,6 +25,6 @@ jobs:
 
     # Build the project
     - name: Build ${{ matrix.project }} project
-      working-directory: ./{{ matrix.project }}
+      working-directory: ./${{ matrix.project }}
       run: |
         make build
