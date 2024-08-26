@@ -7,8 +7,12 @@ on:
     branches: ["main"]
 
 jobs:
-  build-auth:
+  build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        project: [auth, prometheus, people] # List your projects here
 
     steps:
     - name: Checkout code
@@ -19,47 +23,8 @@ jobs:
       with:
         go-version: 1.22
 
-    # Build auth project
-    - name: Build auth project
-      working-directory: ./auth
+    # Build the project
+    - name: Build ${{ matrix.project }} project
+      working-directory: ./{{ matrix.project }}
       run: |
-        go mod tidy
-        go build -v ./...
-
-  build-prometheus:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: 1.22
-
-    # Build prometheus project
-    - name: Build prometheus project
-      working-directory: ./prometheus
-      run: |
-        go mod tidy
-        go build -v ./...
-  build-people:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: 1.22
-
-    # Build people project
-    - name: Build people project
-      working-directory: ./people
-      run: |
-        go mod tidy
-        go build -v ./...
-
+        make build
