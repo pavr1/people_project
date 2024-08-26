@@ -1,0 +1,16 @@
+# .gitlab-ci.yml file
+
+stages:
+- build
+- deploy
+
+build:
+  stage: build
+  script:
+  - make build
+
+deploy-snbx:
+  stage: build
+  when: manual
+  script:
+  - make install-helm-snbx
