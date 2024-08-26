@@ -20,11 +20,23 @@ jobs:
       with:
         go-version: 1.22
 
-    - name: Install dependencies
-      run: go mod tidy
+    # Build auth project
+    - name: Build auth project
+      working-directory: ./auth
+      run: |
+        go mod tidy
+        go build -v ./...
 
-    # - name: Run tests
-    #   run: go test ./...
+    # Build people project
+    - name: Build people project
+      working-directory: ./people
+      run: |
+        go mod tidy
+        go build -v ./...
 
-    - name: Build project
-      run: go build -v ./...
+    # Build prometheus project
+    - name: Build prometheus project
+      working-directory: ./prometheus
+      run: |
+        go mod tidy
+        go build -v ./...
