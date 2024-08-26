@@ -32,6 +32,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        project: [auth, prometheus, people] # List your projects here
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -58,9 +62,11 @@ jobs:
         kubectl config set-context docker-desktop --cluster=docker-desktop --user=admin
         kubectl config use-context docker-desktop
 
-    - name: Deploy to Kubernetes
+    - name: Deployinh ${{ matrix.project }} project
+      working-directory: ./${{ matrix.project }}
       run: |
         make install-helm-snbx
+
   # deploy-snbx:
   #   needs: build
   #   runs-on: ubuntu-latest
