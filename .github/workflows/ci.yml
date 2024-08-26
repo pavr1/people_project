@@ -28,13 +28,8 @@ jobs:
       working-directory: ./${{ matrix.project }}
       run: |
         make build
-  deploy-snbx:
-    needs: build
+  deploy:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        project: [auth, prometheus, people] # List your projects here
 
     steps:
     - name: Checkout code
@@ -43,10 +38,53 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: 1.22
+        go-version: '1.22'
 
-    # Deploy the projects
-    - name: Deploying ${{ matrix.project }} project
-      working-directory: ./${{ matrix.project }}
+    - name: Build application
+      run: |
+        cd /path/to/your/app
+        go build -v ./...
+
+    - name: Install kubectl
+      run: |
+        curl -LO "https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubectl"
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
+
+    - name: Configure Kubernetes context
+      run: |
+        echo "${{ secrets.K8S_CA_CERT }}" > ca.crt
+        echo "${{ secrets.K8S_CLIENT_CERT }}" > client.crt
+        echo "${{ secrets.K8S_CLIENT_KEY }}" > client.key
+
+        kubectl config set-cluster docker-desktop --server=https://localhost:6443 --certificate-authority=ca.crt
+        kubectl config set-credentials admin --client-certificate=client.crt --client-key=client.key
+        kubectl config set-context docker-desktop --cluster=docker-desktop --user=admin
+        kubectl config use-context docker-desktop
+
+    - name: Deploy to Kubernetes
       run: |
         make install-helm-snbx
+  # deploy-snbx:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+
+  #   strategy:
+  #     matrix:
+  #       project: [auth, prometheus, people] # List your projects here
+
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v3
+
+  #   - name: Set up Go
+  #     uses: actions/setup-go@v4
+  #     with:
+  #       go-version: 1.22
+
+  #   # Deploy the projects
+  #   - name: Deploying ${{ matrix.project }} project
+  #     working-directory: ./${{ matrix.project }}
+  #     run: |
+  #       make install-helm-snbx
+
