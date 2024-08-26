@@ -7,8 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
-
+  build-auth:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,12 +26,17 @@ jobs:
         go mod tidy
         go build -v ./...
 
-    # Build people project
-    - name: Build people project
-      working-directory: ./people
-      run: |
-        go mod tidy
-        go build -v ./...
+  build-prometheus:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.22
 
     # Build prometheus project
     - name: Build prometheus project
@@ -40,3 +44,22 @@ jobs:
       run: |
         go mod tidy
         go build -v ./...
+  build-people:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.22
+
+    # Build people project
+    - name: Build people project
+      working-directory: ./people
+      run: |
+        go mod tidy
+        go build -v ./...
+

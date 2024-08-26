@@ -10,7 +10,7 @@ build:
   - make build
 
 deploy-snbx:
-  stage: build
+  stage: deploy
   when: manual
   script:
   - make install-helm-snbx
