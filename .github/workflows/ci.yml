@@ -28,3 +28,24 @@ jobs:
       working-directory: ./${{ matrix.project }}
       run: |
         make build
+  deploy-snbx:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        project: [auth, prometheus, people] # List your projects here
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.22
+
+    # Deploy the projects
+    - name: Deploying ${{ matrix.project }} project
+      working-directory: ./${{ matrix.project }}
+      run: |
+        make install-helm-snbx
