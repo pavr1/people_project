@@ -1,5 +1,6 @@
 build:
-	docker build -t person:1.0 .
+	docker build -t pavr1/person:1.0 .
+	docker push pavr1/person:latest
 
 apply-namespaces:
 	kubectl create namespace snbx
