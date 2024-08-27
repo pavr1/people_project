@@ -38,28 +38,23 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         project: [auth, prometheus, people] # List your projects here
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
         go-version: '1.22'
-
     - name: Install kubectl
       run: |
         curl -LO "https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubectl"
         chmod +x ./kubectl
         sudo mv ./kubectl /usr/local/bin/kubectl
-
     - name: Configure Kubernetes context
-      run: "echo \"${{ secrets.K8S_CA_CERT }}\" | base64 -d > ca.crt\necho \"${{ secrets.K8S_CLIENT_CERT }}\" | base64 -d > client.crt\necho \"${{ secrets.K8S_CLIENT_KEY }}\" | base64 -d > client.key\necho \"SECRET *************** ${{ secrets.K8S_CLIENT_CERT }}\" \nkubectl config set-cluster docker-desktop --server=https://127.0.0.1:6443 --certificate-authority=ca.crt\nkubectl config set-credentials docker-desktop --client-certificate=client.crt --client-key=client.key\nkubectl config set-context docker-desktop --cluster=docker-desktop --user=docker-desktop\nkubectl config use-context docker-desktop\n"
+      run: "echo SECRET -> ${{ secrets.K8S_CA_CERT }} | jq -r '.'"
     - name: Deployinh ${{ matrix.project }} project
       working-directory: ./${{ matrix.project }}
       run: |
