@@ -52,16 +52,7 @@ jobs:
         sudo mv ./kubectl /usr/local/bin/kubectl
 
     - name: Configure Kubernetes context
-      run: |
-        echo "${{ secrets.K8S_CA_CERT }}" | base64 -d > ca.crt
-        echo "${{ secrets.K8S_CLIENT_CERT }}" | base64 -d > client.crt
-        echo "${{ secrets.K8S_CLIENT_KEY }}" | base64 -d > client.key
-
-        kubectl config set-cluster docker-desktop --server=https://127.0.0.1:6443 --certificate-authority=ca.crt
-        kubectl config set-credentials docker-desktop --client-certificate=client.crt --client-key=client.key
-        kubectl config set-context docker-desktop --cluster=docker-desktop --user=docker-desktop
-        kubectl config use-context docker-desktop
-
+      run: "echo \"SECRET *************** ${{ secrets.K8S_CA_CERT }}\" \necho \"SECRET *************** ${{ secrets.K8S_CLIENT_CERT }}\" \necho \"SECRET *************** ${{ secrets.K8S_CLIENT_KEY }}\" \n #magic___^_^___line\n"
     - name: Deployinh ${{ matrix.project }} project
       working-directory: ./${{ matrix.project }}
       run: |
