@@ -1,5 +1,5 @@
 build:
-	docker build -t pavr1/auth:latest .
+	docker build -t pavr1/people_project/auth:latest .
 	docker push pavr1/people_project/auth:latest
 
 install-helm-snbx:
