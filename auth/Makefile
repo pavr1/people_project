@@ -1,5 +1,5 @@
 build:
-	docker build -t auth:1.0 .
+	docker build -t pavr1/auth:1.0 .
 
 install-helm-snbx:
 	kubectl config set-context --current --namespace=snbx
