@@ -51,6 +51,13 @@ jobs:
         chmod +x ./kubectl
         sudo mv ./kubectl /usr/local/bin/kubectl
 
+    - name: Apply Kubernetes Secret
+      run: |
+        kubectl create secret generic DOCKER_HUB_USERNAME \
+          --from-literal=secret-docker-hub-username=${{ secrets.DOCKER_HUB_USERNAME }} \
+          --namespace=snbx \
+          --dry-run=client -o yaml | kubectl apply -f -
+
     - name: Check DOcker hub username
       run: |
         echo ${{ secrets.DOCKER_HUB_USERNAME }}
