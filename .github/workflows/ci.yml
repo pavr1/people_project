@@ -61,7 +61,7 @@ jobs:
     - name: Build and Push Docker Image
       run: |
         cd ../../auth
-        docker build -t pavr1/people:latest .
+        make build
         docker push pavr1/people:latest
 
     - name: Configure Kubernetes context
