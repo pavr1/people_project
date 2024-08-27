@@ -1,5 +1,6 @@
 build:
-	docker build -t prometheus:1.0 .
+	docker build -t pavr1/prometheus:latest .
+	docker push pavr1/prometheus:latest
 
 install-helm-snbx:
 	make build

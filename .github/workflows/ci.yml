@@ -8,8 +8,11 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        project: [auth, prometheus, people] # List your projects here
 
     steps:
     - name: Checkout code
@@ -20,11 +23,63 @@ jobs:
       with:
         go-version: 1.22
 
-    - name: Install dependencies
-      run: go mod tidy
+    - name: Login to Docker Hub
+      # Optional: Build and push Docker image
+      uses: docker/login-action@v2
+      with:
+        username: pavr1 #${{ secrets.DOCKER_HUB_USERNAME }} need to add this to secrets
+        password: villaPab1234! #${{ secrets.DOCKER_HUB_PASSWORD }} need to add this to secrets
 
-    - name: Run tests
-      run: go test ./...
+    # Build the project
+    - name: Build ${{ matrix.project }} project
+      working-directory: ./${{ matrix.project }}
+      run: |
+        make build
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [auth, prometheus, people] # List your projects here
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+    - name: Install kubectl
+      run: |
+        curl -LO "https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubectl"
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
+    - name: Configure Kubernetes context
+      run: "echo SECRET -> ${{ secrets.K8S_CA_CERT }} | jq -r '.'"
+    - name: Deployinh ${{ matrix.project }} project
+      working-directory: ./${{ matrix.project }}
+      run: |
+        make install-helm-snbx
 
-    - name: Build project
-      run: go build -v ./...
+  # deploy-snbx:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+
+  #   strategy:
+  #     matrix:
+  #       project: [auth, prometheus, people] # List your projects here
+
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v3
+
+  #   - name: Set up Go
+  #     uses: actions/setup-go@v4
+  #     with:
+  #       go-version: 1.22
+
+  #   # Deploy the projects
+  #   - name: Deploying ${{ matrix.project }} project
+  #     working-directory: ./${{ matrix.project }}
+  #     run: |
+  #       make install-helm-snbx
+
