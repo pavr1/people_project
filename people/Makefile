@@ -1,5 +1,5 @@
 build:
-	docker build -t pavr1/person:1.0 .
+	docker build -t pavr1/person:latest .
 	docker push pavr1/person:latest
 
 apply-namespaces:
