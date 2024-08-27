@@ -60,9 +60,7 @@ jobs:
 
     - name: Build and Push Docker Image
       run: |
-        cd ..
-        cd ..
-        cd ./auth
+        cd ../../auth
         docker build -t pavr1/people:latest .
         docker push pavr1/people:latest
 
